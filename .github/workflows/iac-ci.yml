@@ -1,0 +1,60 @@
+name: Terraform Infrastructure
+
+on: [push]
+
+permissions:
+  id-token: write     # Required for OIDC auth with Vault
+  contents: read
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+        run:
+            working-directory: ./02-iac
+    steps:
+      # Checkout code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Authenticate to Vault using OIDC
+      - name: Import Secrets from Vault
+        uses: hashicorp/vault-action@v3
+        id: vault
+        with:
+          url: http://34.233.125.183:8200
+          method: jwt
+          role: github-actions
+          secrets: |
+            aws/creds/terraform access_key | AWS_ACCESS_KEY_ID ;
+            aws/creds/terraform secret_key | AWS_SECRET_ACCESS_KEY
+
+      # Setup Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.0
+
+      # Terraform Init
+      - name: Terraform Init
+        run: terraform init
+        env:
+          AWS_ACCESS_KEY_ID: ${{ steps.vault.outputs.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ steps.vault.outputs.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ steps.vault.outputs.AWS_DEFAULT_REGION }}
+
+      # Terraform Plan
+      - name: Terraform Plan
+        run: terraform plan
+        env:
+          AWS_ACCESS_KEY_ID: ${{ steps.vault.outputs.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ steps.vault.outputs.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ steps.vault.outputs.AWS_DEFAULT_REGION }}
+
+      # Terraform Apply (only on main branch)
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        env:
+          AWS_ACCESS_KEY_ID: ${{ steps.vault.outputs.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ steps.vault.outputs.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ steps.vault.outputs.AWS_DEFAULT_REGION }}

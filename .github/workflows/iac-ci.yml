@@ -25,6 +25,7 @@ jobs:
           url: http://34.233.125.183:8200
           method: jwt
           role: github-actions
+          jwtGithubAudience: https://github.com/Olakenny 
           secrets: |
             aws/creds/terraform access_key | AWS_ACCESS_KEY_ID ;
             aws/creds/terraform secret_key | AWS_SECRET_ACCESS_KEY
@@ -41,7 +42,7 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ steps.vault.outputs.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ steps.vault.outputs.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ steps.vault.outputs.AWS_DEFAULT_REGION }}
+          AWS_DEFAULT_REGION: us-east-1
 
       # Terraform Plan
       - name: Terraform Plan
@@ -49,7 +50,7 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ steps.vault.outputs.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ steps.vault.outputs.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ steps.vault.outputs.AWS_DEFAULT_REGION }}
+          AWS_DEFAULT_REGION: us-east-1
 
       # Terraform Apply (only on main branch)
       - name: Terraform Apply
@@ -57,4 +58,4 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ steps.vault.outputs.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ steps.vault.outputs.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ steps.vault.outputs.AWS_DEFAULT_REGION }}
+          AWS_DEFAULT_REGION: us-east-1

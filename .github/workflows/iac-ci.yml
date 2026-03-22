@@ -1,7 +1,10 @@
 name: Terraform Infrastructure
 
-on: [push]
-
+on:
+  push:
+    branches:
+      - dev
+      
 permissions:
   id-token: write     # Required for OIDC auth with Vault
   contents: read
@@ -25,7 +28,7 @@ jobs:
           url: http://34.233.125.183:8200
           method: jwt
           role: github-actions
-          jwtGithubAudience: https://github.com/Olakenny 
+          jwtGithubAudience: vault
           secrets: |
             aws/creds/terraform access_key | AWS_ACCESS_KEY_ID ;
             aws/creds/terraform secret_key | AWS_SECRET_ACCESS_KEY
